@@ -1,17 +1,13 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
+@section('content')
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h3 class="text-lg font-semibold mb-4">Current Workflow Status</h3>
 
-                    @if ($currentWorkflow)
+                    @if (isset($currentWorkflow) && $currentWorkflow)
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                             <div class="p-4 border rounded-lg">
                                 <h4 class="font-medium text-gray-700">Config Import</h4>
@@ -85,7 +81,7 @@
                     <div class="p-6 bg-white border-b border-gray-200">
                         <h3 class="text-lg font-semibold mb-4">Recent Files</h3>
 
-                        @if ($recentFiles->count() > 0)
+                        @if (isset($recentFiles) && $recentFiles->count() > 0)
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead>
@@ -135,7 +131,7 @@
                     <div class="p-6 bg-white border-b border-gray-200">
                         <h3 class="text-lg font-semibold mb-4">Recent Batches</h3>
 
-                        @if ($recentBatches->count() > 0)
+                        @if (isset($recentBatches) && $recentBatches->count() > 0)
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead>
@@ -183,4 +179,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+@endsection
