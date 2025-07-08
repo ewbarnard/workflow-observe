@@ -6,7 +6,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-semibold">Workflow #{{ $workflow->id }}</h3>
+                        <h3 class="text-lg font-semibold">Workflow #{{ $workflow->n8n_execution }}</h3>
                         <a href="{{ route('workflows.index') }}" class="text-blue-500 hover:underline">
                             Back to Workflows
                         </a>
@@ -22,7 +22,7 @@
                         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium text-gray-500">Start Time</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                {{ $workflow->snapshot_timestamp ? $workflow->snapshot_timestamp->format('Y-m-d H:i:s') : 'N/A' }}
+                                {{ $workflow->created_at ? $workflow->created_at->format('Y-m-d H:i:s') : 'N/A' }}
                             </dd>
                         </div>
                         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -71,6 +71,7 @@
                                 </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white">
+
                                 <tr>
                                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                                         Config Import
@@ -79,8 +80,8 @@
                                         @if($workflow->config_import_dim_status_id)
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                                                   style="background-color: {{ $workflow->configImportStatus->status_color ?? '#ccc' }}; color: white;">
-                                                {{ $workflow->configImportStatus->status_name ?? 'Unknown' }}
-                                            </span>
+                {{ $workflow->configImportStatus->status_name ?? 'Unknown' }}
+            </span>
                                         @else
                                             <span class="text-gray-500">Not Started</span>
                                         @endif
@@ -137,6 +138,55 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Add after the workflow stages section -->
+
+                    @if(isset($snapshots) && $snapshots->count() > 1)
+                        <h4 class="font-medium text-lg mb-4 mt-8">Workflow History</h4>
+                        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-300">
+                                <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Snapshot
+                                        Time
+                                    </th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Files
+                                        Processed
+                                    </th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Batches
+                                        Created
+                                    </th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Current
+                                        Stage
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                @foreach($snapshots as $snapshot)
+                                    <tr>
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
+                                            {{ $snapshot->updated_at->format('Y-m-d H:i:s') }}
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $snapshot->total_files_processed }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $snapshot->total_batches_created }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            @php
+                                                $currentStage = 'Not Started';
+                                                if ($snapshot->batch_creation_dim_status_id) $currentStage = 'Batch Creation';
+                                                elseif ($snapshot->batch_manifest_dim_status_id) $currentStage = 'Batch Manifest';
+                                                elseif ($snapshot->file_search_dim_status_id) $currentStage = 'File Search';
+                                                elseif ($snapshot->folder_search_dim_status_id) $currentStage = 'Folder Search';
+                                                elseif ($snapshot->config_import_dim_status_id) $currentStage = 'Config Import';
+                                            @endphp
+                                            {{ $currentStage }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+
                 </div>
             </div>
         </div>

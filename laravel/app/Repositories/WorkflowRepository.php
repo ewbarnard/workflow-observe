@@ -23,13 +23,16 @@ class WorkflowRepository
         ;
     }
 
-    public function createWorkflowSnapshot(array $data)
+    public function createWorkflowSnapshot($data)
     {
-        return FactWorkflowSnapshot::create(array_merge($data, [
-            'snapshot_timestamp' => Carbon::now(),
-        ]));
-    }
+        // Generate a unique execution ID if not provided
+        if (!isset($data['n8n_execution'])) {
+            $data['n8n_execution'] = 'n8n_' . uniqid() . '_' . time();
+        }
 
+        return FactWorkflowSnapshot::create($data);
+    }
+    
     public function updateWorkflowStage($workflowId, $stageName, $status, $isStart = true)
     {
         $workflow = FactWorkflowSnapshot::findOrFail($workflowId);

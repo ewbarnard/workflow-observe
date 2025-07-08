@@ -12,7 +12,6 @@ use Livewire\Volt\Volt;
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::resource('workflows', WorkflowController::class);
-Route::post('workflows/start', [WorkflowController::class, 'start'])->name('workflows.start');
 
 Route::resource('files', FileController::class)->only(['index', 'show']);
 

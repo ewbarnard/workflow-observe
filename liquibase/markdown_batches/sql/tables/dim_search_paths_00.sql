@@ -1,11 +1,13 @@
-CREATE TABLE dim_search_paths
+CREATE TABLE `dim_search_paths`
 (
-    id              INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    search_path     VARCHAR(255) NOT NULL,
-    source_csv_file VARCHAR(255) NOT NULL,
-    is_active       BOOLEAN      NOT NULL DEFAULT TRUE,
-    added_date      TIMESTAMP    NOT NULL,
-    created_at      TIMESTAMP             DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unq_search_path (search_path)
-);
+    `id`                       int unsigned NOT NULL AUTO_INCREMENT,
+    `search_path`              varchar(255) NOT NULL,
+    `directory_search_command` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+    `is_active`                tinyint(1)   NOT NULL                                          DEFAULT '1',
+    `created_at`               timestamp    NULL                                              DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`               timestamp    NULL                                              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unq_search_path` (`search_path`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;

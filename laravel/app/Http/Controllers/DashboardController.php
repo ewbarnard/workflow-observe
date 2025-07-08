@@ -19,7 +19,7 @@ class DashboardController extends Controller
             'configImportStatus',
             // Add other relationships as needed
         ])
-            ->orderBy('snapshot_timestamp', 'desc')
+            ->orderBy('created_at', 'desc')
             ->first()
         ;
 
