@@ -27,13 +27,25 @@ class WorkflowController extends Controller
         return view('workflows.index', compact('workflows'));
     }
 
+    public function create()
+    {
+        return view('workflows.create');
+    }
+
     public function show($id)
     {
         $workflow = FactWorkflowSnapshot::with([
             'version',
             'configImportStage',
             'configImportStatus',
-            // Add other stage and status relationships
+            'folderSearchStage',
+            'folderSearchStatus',
+            'fileSearchStage',
+            'fileSearchStatus',
+            'batchManifestStage',
+            'batchManifestStatus',
+            'batchCreationStage',
+            'batchCreationStatus',
         ])->findOrFail($id);
 
         return view('workflows.show', compact('workflow'));

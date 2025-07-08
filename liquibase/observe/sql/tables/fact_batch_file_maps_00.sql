@@ -1,8 +1,8 @@
 CREATE TABLE fact_batch_file_maps
 (
     id                     BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    dim_batch_id           BIGINT UNSIGNED NOT NULL,
-    dim_file_id            BIGINT UNSIGNED NOT NULL,
+    dim_batch_id           int UNSIGNED    NOT NULL,
+    dim_file_id            int UNSIGNED    NOT NULL,
     file_sequence_in_batch INT UNSIGNED    NOT NULL,
     file_start_position    INT UNSIGNED    NOT NULL,
     file_end_position      INT UNSIGNED    NOT NULL,
