@@ -13,27 +13,13 @@ class DimBatch extends Model
 
     protected $table = 'dim_batches';
 
-    protected $fillable = [
-        'batch_name',
-        'batch_description',
-        'batch_created_timestamp',
-        'batch_size_bytes',
-        'file_count',
-    ];
-
-    protected $casts = [
-        'batch_created_timestamp' => 'datetime',
-    ];
-
-    public function files()
+    public function directory()
     {
-        return $this->belongsToMany(DimFile::class, 'fact_batch_file_maps', 'dim_batch_id', 'dim_file_id')
-            ->withPivot(['file_sequence_in_batch', 'file_start_position', 'file_end_position'])
-        ;
+        return $this->belongsTo(DimDirectory::class, 'dim_directory_id');
     }
 
-    public function fileProcessings()
+    public function batchFiles()
     {
-        return $this->hasMany(FactFileProcessing::class, 'dim_batch_id');
+        return $this->hasMany(DimBatchFile::class, 'dim_batch_id');
     }
 }
