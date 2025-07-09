@@ -2,6 +2,7 @@ CREATE TABLE `fact_workflow_snapshots`
 (
     `id`                             bigint unsigned                                               NOT NULL AUTO_INCREMENT,
     `n8n_execution`                  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+    `n8n_subflow`                    varchar(255)                                                           DEFAULT NULL,
     `dim_version_id`                 int unsigned                                                  NOT NULL,
     `config_import_dim_stage_id`     int unsigned                                                           DEFAULT NULL,
     `config_import_dim_status_id`    int unsigned                                                           DEFAULT NULL,
@@ -41,6 +42,8 @@ CREATE TABLE `fact_workflow_snapshots`
     KEY `batch_manifest_dim_status_id` (`batch_manifest_dim_status_id`),
     KEY `batch_creation_dim_stage_id` (`batch_creation_dim_stage_id`),
     KEY `batch_creation_dim_status_id` (`batch_creation_dim_status_id`),
+    KEY `n8n_execution` (`n8n_execution`),
+    KEY `n8n_subflow` (`n8n_subflow`),
     CONSTRAINT `fact_workflow_snapshots_ibfk_1` FOREIGN KEY (`dim_version_id`) REFERENCES `dim_versions` (`id`),
     CONSTRAINT `fact_workflow_snapshots_ibfk_10` FOREIGN KEY (`batch_creation_dim_stage_id`) REFERENCES `dim_stages` (`id`),
     CONSTRAINT `fact_workflow_snapshots_ibfk_11` FOREIGN KEY (`batch_creation_dim_status_id`) REFERENCES `dim_statuses` (`id`),

@@ -30,6 +30,7 @@ class WorkflowController extends Controller
                 DB::raw('MAX(fws.created_at) as last_updated'),
                 DB::raw('MAX(fws.total_files_processed) as total_files_processed'),
                 DB::raw('MAX(fws.total_batches_created) as total_batches_created'),
+                DB::raw('MAX(fws.total_bytes_processed) as total_bytes_processed'),
                 DB::raw('MAX(fws.error_count) as error_count'),
                 DB::raw('MAX(fws.config_import_dim_status_id) as config_import_dim_status_id'),
                 DB::raw('MAX(fws.folder_search_dim_status_id) as folder_search_dim_status_id'),
@@ -73,8 +74,14 @@ class WorkflowController extends Controller
             'updated_at' => $snapshots->last()->updated_at,
             'total_files_processed' => $snapshots->max('total_files_processed'),
             'total_batches_created' => $snapshots->max('total_batches_created'),
+            'total_bytes_processed' => $snapshots->max('total_bytes_processed'),
             'error_count' => $snapshots->max('error_count'),
+            'statuses' => [], // Add an array to store status objects explicitly
+            'stages' => [],    // Add an array to store stage objects explicitly
         ];
+
+        // Debug array to help troubleshoot issues
+        $debug = [];
 
         // Accumulate all stage information
         foreach (['config_import', 'folder_search', 'file_search', 'batch_manifest', 'batch_creation'] as $stage) {
@@ -88,18 +95,46 @@ class WorkflowController extends Controller
             $workflow->{$stage . '_end_timestamp'} =
                 $snapshots->whereNotNull($stage . '_end_timestamp')->last()?->{$stage . '_end_timestamp'};
 
-            // Get related objects
-            $statusField = $stage . 'Status';
-            $stageField = $stage . 'Stage';
+            // Add debug data
+            $debug[$stage] = [
+                'dim_status_id' => $workflow->{$stage . '_dim_status_id'},
+                'dim_stage_id' => $workflow->{$stage . '_dim_stage_id'},
+                'start_timestamp' => $workflow->{$stage . '_start_timestamp'},
+                'end_timestamp' => $workflow->{$stage . '_end_timestamp'},
+            ];
 
+            // Load the related status and store it in the statuses array
             if ($workflow->{$stage . '_dim_status_id'}) {
-                $workflow->{$statusField} = DimStatus::find($workflow->{$stage . '_dim_status_id'});
+                $statusRecord = DimStatus::find($workflow->{$stage . '_dim_status_id'});
+
+                // Store both ways - as a property and in the array
+                $workflow->statuses[$stage] = $statusRecord;
+                $workflow->{$stage . '_status'} = $statusRecord; // Changed property name format
+
+                $debug[$stage]['status_record'] = $statusRecord ? [
+                    'id' => $statusRecord->id,
+                    'name' => $statusRecord->status_name,
+                    'color' => $statusRecord->status_color,
+                ] : 'Not found';
             }
 
+            // Load the related stage and store it in the stages array
             if ($workflow->{$stage . '_dim_stage_id'}) {
-                $workflow->{$stageField} = DimStage::find($workflow->{$stage . '_dim_stage_id'});
+                $stageRecord = DimStage::find($workflow->{$stage . '_dim_stage_id'});
+
+                // Store both ways - as a property and in the array
+                $workflow->stages[$stage] = $stageRecord;
+                $workflow->{$stage . '_stage'} = $stageRecord; // Changed property name format
+
+                $debug[$stage]['stage_record'] = $stageRecord ? [
+                    'id' => $stageRecord->id,
+                    'name' => $stageRecord->stage_name,
+                ] : 'Not found';
             }
         }
+
+        // Add debug data to workflow
+        $workflow->debug = $debug;
 
         return view('workflows.show', compact('workflow', 'snapshots'));
     }

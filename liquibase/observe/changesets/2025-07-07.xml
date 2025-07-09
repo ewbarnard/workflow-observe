@@ -20,6 +20,29 @@
         <rollback>DROP TABLE IF EXISTS `dim_versions`;</rollback>
     </changeSet>
 
+    <changeSet author="ewbarnard" id="2025-07-07ai">
+        <preConditions onFail="HALT">
+            <and>
+                <tableExists tableName="dim_versions"/>
+                <sqlCheck expectedResult="0">
+                    SELECT count(*) FROM `dim_versions`
+                    WHERE `version_name` = 'v1.0'
+                    LIMIT 1;
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sqlFile dbms="mysql"
+                 encoding="UTF-8"
+                 endDelimiter=";"
+                 path="../sql/data/dim_versions_01.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+        <rollback>
+            DELETE FROM `dim_versions` WHERE `version_name` = 'v1.0' LIMIT 1;
+        </rollback>
+    </changeSet>
+
     <changeSet author="ewbarnard" id="2025-07-07ab">
         <preConditions onFail="HALT">
             <not>
@@ -36,6 +59,35 @@
         <rollback>DROP TABLE IF EXISTS `dim_stages`;</rollback>
     </changeSet>
 
+    <changeSet author="ewbarnard" id="2025-07-07aj">
+        <preConditions onFail="HALT">
+            <and>
+                <tableExists tableName="dim_stages"/>
+                <sqlCheck expectedResult="0">
+                    SELECT count(*) FROM `dim_stages`
+                    WHERE `stage_name` IN (
+                    'Configuration Import', 'Folder Search', 'Markdown File Search',
+                    'Batch Manifest Creation', 'Batch Group Creation'
+                    )
+                    LIMIT 1;
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sqlFile dbms="mysql"
+                 encoding="UTF-8"
+                 endDelimiter=";"
+                 path="../sql/data/dim_stages_01.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+        <rollback>
+            DELETE FROM `dim_stages` WHERE `stage_name` IN (
+            'Configuration Import', 'Folder Search', 'Markdown File Search',
+            'Batch Manifest Creation', 'Batch Group Creation'
+            ) LIMIT 1;
+        </rollback>
+    </changeSet>
+
     <changeSet author="ewbarnard" id="2025-07-07ac">
         <preConditions onFail="HALT">
             <not>
@@ -50,6 +102,81 @@
                  splitStatements="true"
                  stripComments="true"/>
         <rollback>DROP TABLE IF EXISTS `dim_statuses`;</rollback>
+    </changeSet>
+
+    <changeSet author="ewbarnard" id="2025-07-07ak">
+        <preConditions onFail="HALT">
+            <and>
+                <tableExists tableName="dim_statuses"/>
+                <sqlCheck expectedResult="0">
+                    SELECT count(*) FROM `dim_statuses`
+                    WHERE `status_name` IN (
+                    'Pending', 'In Progress', 'Complete', 'Error'
+                    )
+                    LIMIT 1;
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sqlFile dbms="mysql"
+                 encoding="UTF-8"
+                 endDelimiter=";"
+                 path="../sql/data/dim_statuses_01.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+        <rollback>
+            DELETE FROM `dim_statuses` WHERE `status_name` IN (
+            'Pending', 'In Progress', 'Complete', 'Error'
+            ) LIMIT 1;
+        </rollback>
+    </changeSet>
+
+    <changeSet author="ewbarnard" id="2025-07-07af">
+        <preConditions onFail="HALT">
+            <not>
+                <tableExists tableName="fact_workflow_snapshots"/>
+            </not>
+        </preConditions>
+        <sqlFile dbms="mysql"
+                 encoding="UTF-8"
+                 endDelimiter=";"
+                 path="../sql/tables/fact_workflow_snapshots_00.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+        <rollback>DROP TABLE IF EXISTS `fact_workflow_snapshots`;</rollback>
+    </changeSet>
+
+    <changeSet author="ewbarnard" id="md-batches-ab">
+        <preConditions onFail="HALT">
+            <not>
+                <tableExists tableName="dim_search_paths"/>
+            </not>
+        </preConditions>
+        <sqlFile dbms="mysql"
+                 encoding="UTF-8"
+                 endDelimiter=";"
+                 path="../sql/tables/dim_search_paths_00.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+        <rollback>DROP TABLE IF EXISTS `dim_search_paths`;</rollback>
+    </changeSet>
+
+    <changeSet author="ewbarnard" id="md-batches-aa">
+        <preConditions onFail="HALT">
+            <not>
+                <tableExists tableName="dim_directories"/>
+            </not>
+        </preConditions>
+        <sqlFile dbms="mysql"
+                 encoding="UTF-8"
+                 endDelimiter=";"
+                 path="../sql/tables/dim_directories_00.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+        <rollback>DROP TABLE IF EXISTS `dim_directories`;</rollback>
     </changeSet>
 
     <changeSet author="ewbarnard" id="2025-07-07ad">
@@ -84,131 +211,20 @@
         <rollback>DROP TABLE IF EXISTS `dim_batches`;</rollback>
     </changeSet>
 
-    <changeSet author="ewbarnard" id="2025-07-07af">
-        <preConditions onFail="HALT">
-            <not>
-                <tableExists tableName="fact_workflow_snapshots"/>
-            </not>
-        </preConditions>
-        <sqlFile dbms="mysql"
-                 encoding="UTF-8"
-                 endDelimiter=";"
-                 path="../sql/tables/fact_workflow_snapshots_00.sql"
-                 relativeToChangelogFile="true"
-                 splitStatements="true"
-                 stripComments="true"/>
-        <rollback>DROP TABLE IF EXISTS `fact_workflow_snapshots`;</rollback>
-    </changeSet>
-
     <changeSet author="ewbarnard" id="2025-07-07ag">
         <preConditions onFail="HALT">
             <not>
-                <tableExists tableName="fact_file_processings"/>
+                <tableExists tableName="dim_batch_files"/>
             </not>
         </preConditions>
         <sqlFile dbms="mysql"
                  encoding="UTF-8"
                  endDelimiter=";"
-                 path="../sql/tables/fact_file_processings_00.sql"
+                 path="../sql/tables/dim_batch_files_00.sql"
                  relativeToChangelogFile="true"
                  splitStatements="true"
                  stripComments="true"/>
-        <rollback>DROP TABLE IF EXISTS `fact_file_processings`;</rollback>
-    </changeSet>
-
-    <changeSet author="ewbarnard" id="2025-07-07ah">
-        <preConditions onFail="HALT">
-            <not>
-                <tableExists tableName="fact_batch_file_maps"/>
-            </not>
-        </preConditions>
-        <sqlFile dbms="mysql"
-                 encoding="UTF-8"
-                 endDelimiter=";"
-                 path="../sql/tables/fact_batch_file_maps_00.sql"
-                 relativeToChangelogFile="true"
-                 splitStatements="true"
-                 stripComments="true"/>
-        <rollback>DROP TABLE IF EXISTS `fact_batch_file_maps`;</rollback>
-    </changeSet>
-
-    <changeSet author="ewbarnard" id="2025-07-07ai">
-        <preConditions onFail="HALT">
-            <and>
-                <tableExists tableName="dim_versions"/>
-                <sqlCheck expectedResult="0">
-                    SELECT count(*) FROM `dim_versions`
-                    WHERE `version_name` = 'v1.0'
-                    LIMIT 1;
-                </sqlCheck>
-            </and>
-        </preConditions>
-        <sqlFile dbms="mysql"
-                 encoding="UTF-8"
-                 endDelimiter=";"
-                 path="../sql/data/dim_versions_01.sql"
-                 relativeToChangelogFile="true"
-                 splitStatements="true"
-                 stripComments="true"/>
-        <rollback>
-            DELETE FROM `dim_versions` WHERE `version_name` = 'v1.0' LIMIT 1;
-        </rollback>
-    </changeSet>
-
-    <changeSet author="ewbarnard" id="2025-07-07aj">
-        <preConditions onFail="HALT">
-            <and>
-                <tableExists tableName="dim_stages"/>
-                <sqlCheck expectedResult="0">
-                    SELECT count(*) FROM `dim_stages`
-                    WHERE `stage_name` IN (
-                    'Configuration Import', 'Folder Search', 'Markdown File Search',
-                    'Batch Manifest Creation', 'Batch Group Creation'
-                    )
-                    LIMIT 1;
-                </sqlCheck>
-            </and>
-        </preConditions>
-        <sqlFile dbms="mysql"
-                 encoding="UTF-8"
-                 endDelimiter=";"
-                 path="../sql/data/dim_stages_01.sql"
-                 relativeToChangelogFile="true"
-                 splitStatements="true"
-                 stripComments="true"/>
-        <rollback>
-            DELETE FROM `dim_stages` WHERE `stage_name` IN (
-            'Configuration Import', 'Folder Search', 'Markdown File Search',
-            'Batch Manifest Creation', 'Batch Group Creation'
-            ) LIMIT 1;
-        </rollback>
-    </changeSet>
-
-    <changeSet author="ewbarnard" id="2025-07-07ak">
-        <preConditions onFail="HALT">
-            <and>
-                <tableExists tableName="dim_statuses"/>
-                <sqlCheck expectedResult="0">
-                    SELECT count(*) FROM `dim_statuses`
-                    WHERE `status_name` IN (
-                    'Pending', 'In Progress', 'Complete', 'Error'
-                    )
-                    LIMIT 1;
-                </sqlCheck>
-            </and>
-        </preConditions>
-        <sqlFile dbms="mysql"
-                 encoding="UTF-8"
-                 endDelimiter=";"
-                 path="../sql/data/dim_statuses_01.sql"
-                 relativeToChangelogFile="true"
-                 splitStatements="true"
-                 stripComments="true"/>
-        <rollback>
-            DELETE FROM `dim_statuses` WHERE `status_name` IN (
-            'Pending', 'In Progress', 'Complete', 'Error'
-            ) LIMIT 1;
-        </rollback>
+        <rollback>DROP TABLE IF EXISTS `dim_batch_files`;</rollback>
     </changeSet>
 
 </databaseChangeLog>

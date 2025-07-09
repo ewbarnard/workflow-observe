@@ -61,25 +61,36 @@
                                             @php
                                                 $lastStage = 'Not Started';
                                                 $color = '#ccc';
+                                                $stageStatusId = null;
 
                                                 if($workflow->batch_creation_end_timestamp) {
-                                                    $lastStage = 'Completed';
+                                                    $lastStage = 'Workflow Complete';
                                                     $color = '#22c55e'; // Green
                                                 } elseif($workflow->batch_creation_dim_status_id) {
                                                     $lastStage = 'Batch Creation';
-                                                    $color = '#3b82f6'; // Blue
+                                                    $stageStatusId = $workflow->batch_creation_dim_status_id;
                                                 } elseif($workflow->batch_manifest_dim_status_id) {
                                                     $lastStage = 'Batch Manifest';
-                                                    $color = '#3b82f6';
+                                                    $stageStatusId = $workflow->batch_manifest_dim_status_id;
                                                 } elseif($workflow->file_search_dim_status_id) {
                                                     $lastStage = 'File Search';
-                                                    $color = '#3b82f6';
+                                                    $stageStatusId = $workflow->file_search_dim_status_id;
                                                 } elseif($workflow->folder_search_dim_status_id) {
                                                     $lastStage = 'Folder Search';
-                                                    $color = '#3b82f6';
+                                                    $stageStatusId = $workflow->folder_search_dim_status_id;
                                                 } elseif($workflow->config_import_dim_status_id) {
-                                                    $lastStage = $workflow->config_import_end_timestamp ? 'Config Import Complete' : 'Config Import';
-                                                    $color = $workflow->config_import_end_timestamp ? '#22c55e' : '#3b82f6';
+                                                    $lastStage = 'Config Import';
+                                                    $stageStatusId = $workflow->config_import_dim_status_id;
+                                                }
+
+                                                // Status colors
+                                                if ($stageStatusId) {
+                                                    $status = App\Models\DimStatus::find($stageStatusId);
+                                                    if ($status) {
+                                                        $statusName = $status->status_name;
+                                                        $color = $status->status_color;
+                                                        $lastStage = $lastStage . ' - ' . $statusName;
+                                                    }
                                                 }
                                             @endphp
 

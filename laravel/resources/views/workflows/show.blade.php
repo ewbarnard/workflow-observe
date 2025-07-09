@@ -37,6 +37,12 @@
                                 {{ $workflow->total_batches_created ?? 0 }}
                             </dd>
                         </div>
+                        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Total Size</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {{ number_format(($workflow->total_bytes_processed ?? 0) / 1024, 2) }} KB
+                            </dd>
+                        </div>
                         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-b-md">
                             <dt class="text-sm font-medium text-gray-500">Errors</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
@@ -78,10 +84,23 @@
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
                                         @if($workflow->config_import_dim_status_id)
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                                  style="background-color: {{ $workflow->configImportStatus->status_color ?? '#ccc' }}; color: white;">
-                {{ $workflow->configImportStatus->status_name ?? 'Unknown' }}
-            </span>
+                                            @php
+                                                // Get the status from the statuses array as a fallback
+                                                $status = $workflow->config_import_status ?? ($workflow->statuses['config_import'] ?? null);
+                                            @endphp
+                                            @if($status)
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: {{ $status->status_color }}; color: white;">
+                                                    {{ $status->status_name }}
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: #ccc; color: white;">
+                                                    Status ID: {{ $workflow->config_import_dim_status_id }} (Not Found)
+                                                </span>
+                                            @endif
                                         @else
                                             <span class="text-gray-500">Not Started</span>
                                         @endif
@@ -108,10 +127,23 @@
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
                                         @if($workflow->folder_search_dim_status_id)
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                                  style="background-color: {{ $workflow->folderSearchStatus->status_color ?? '#ccc' }}; color: white;">
-                                                {{ $workflow->folderSearchStatus->status_name ?? 'Unknown' }}
-                                            </span>
+                                            @php
+                                                // Get the status from the statuses array as a fallback
+                                                $status = $workflow->folder_search_status ?? ($workflow->statuses['folder_search'] ?? null);
+                                            @endphp
+                                            @if($status)
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: {{ $status->status_color }}; color: white;">
+                                                    {{ $status->status_name }}
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: #ccc; color: white;">
+                                                    Status ID: {{ $workflow->folder_search_dim_status_id }} (Not Found)
+                                                </span>
+                                            @endif
                                         @else
                                             <span class="text-gray-500">Not Started</span>
                                         @endif
@@ -124,7 +156,7 @@
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         @if($workflow->folder_search_start_timestamp && $workflow->folder_search_end_timestamp)
-                                            {{ $workflow->folder_search_end_timestamp->diffInSeconds($workflow->folder_search_start_timestamp) }}
+                                            {{ abs($workflow->folder_search_end_timestamp->diffInSeconds($workflow->folder_search_start_timestamp)) }}
                                             s
                                         @else
                                             N/A
@@ -132,7 +164,137 @@
                                     </td>
                                 </tr>
 
-                                <!-- Additional stages would follow the same pattern -->
+                                <!-- File Search Row -->
+                                <tr>
+                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                        File Search
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                        @if($workflow->file_search_dim_status_id)
+                                            @php
+                                                // Get the status from the statuses array as a fallback
+                                                $status = $workflow->file_search_status ?? ($workflow->statuses['file_search'] ?? null);
+                                            @endphp
+                                            @if($status)
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: {{ $status->status_color }}; color: white;">
+                                                    {{ $status->status_name }}
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: #ccc; color: white;">
+                                                    Status ID: {{ $workflow->file_search_dim_status_id }} (Not Found)
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="text-gray-500">Not Started</span>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        {{ $workflow->file_search_start_timestamp ? $workflow->file_search_start_timestamp->format('Y-m-d H:i:s') : 'N/A' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        {{ $workflow->file_search_end_timestamp ? $workflow->file_search_end_timestamp->format('Y-m-d H:i:s') : 'N/A' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if($workflow->file_search_start_timestamp && $workflow->file_search_end_timestamp)
+                                            {{ $workflow->file_search_end_timestamp->diffInSeconds($workflow->file_search_start_timestamp) }}
+                                            s
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                </tr>
+
+                                <!-- Batch Manifest Row -->
+                                <tr>
+                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                        Batch Manifest
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                        @if($workflow->batch_manifest_dim_status_id)
+                                            @php
+                                                // Get the status from the statuses array as a fallback
+                                                $status = $workflow->batch_manifest_status ?? ($workflow->statuses['batch_manifest'] ?? null);
+                                            @endphp
+                                            @if($status)
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: {{ $status->status_color }}; color: white;">
+                                                    {{ $status->status_name }}
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: #ccc; color: white;">
+                                                    Status ID: {{ $workflow->batch_manifest_dim_status_id }} (Not Found)
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="text-gray-500">Not Started</span>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        {{ $workflow->batch_manifest_start_timestamp ? $workflow->batch_manifest_start_timestamp->format('Y-m-d H:i:s') : 'N/A' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        {{ $workflow->batch_manifest_end_timestamp ? $workflow->batch_manifest_end_timestamp->format('Y-m-d H:i:s') : 'N/A' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if($workflow->batch_manifest_start_timestamp && $workflow->batch_manifest_end_timestamp)
+                                            {{ $workflow->batch_manifest_end_timestamp->diffInSeconds($workflow->batch_manifest_start_timestamp) }}
+                                            s
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                </tr>
+
+                                <!-- Batch Creation Row -->
+                                <tr>
+                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                        Batch Creation
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                        @if($workflow->batch_creation_dim_status_id)
+                                            @php
+                                                // Get the status from the statuses array as a fallback
+                                                $status = $workflow->batch_creation_status ?? ($workflow->statuses['batch_creation'] ?? null);
+                                            @endphp
+                                            @if($status)
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: {{ $status->status_color }}; color: white;">
+                                                    {{ $status->status_name }}
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    style="background-color: #ccc; color: white;">
+                                                    Status ID: {{ $workflow->batch_creation_dim_status_id }} (Not Found)
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="text-gray-500">Not Started</span>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        {{ $workflow->batch_creation_start_timestamp ? $workflow->batch_creation_start_timestamp->format('Y-m-d H:i:s') : 'N/A' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        {{ $workflow->batch_creation_end_timestamp ? $workflow->batch_creation_end_timestamp->format('Y-m-d H:i:s') : 'N/A' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if($workflow->batch_creation_start_timestamp && $workflow->batch_creation_end_timestamp)
+                                            {{ $workflow->batch_creation_end_timestamp->diffInSeconds($workflow->batch_creation_start_timestamp) }}
+                                            s
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                </tr>
 
                                 </tbody>
                             </table>
@@ -159,6 +321,7 @@
                                     <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Current
                                         Stage
                                     </th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
                                 </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white">
@@ -172,13 +335,48 @@
                                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                             @php
                                                 $currentStage = 'Not Started';
-                                                if ($snapshot->batch_creation_dim_status_id) $currentStage = 'Batch Creation';
-                                                elseif ($snapshot->batch_manifest_dim_status_id) $currentStage = 'Batch Manifest';
-                                                elseif ($snapshot->file_search_dim_status_id) $currentStage = 'File Search';
-                                                elseif ($snapshot->folder_search_dim_status_id) $currentStage = 'Folder Search';
-                                                elseif ($snapshot->config_import_dim_status_id) $currentStage = 'Config Import';
+                                                $stageStatusId = null;
+
+                                                if ($snapshot->batch_creation_dim_status_id) {
+                                                    $currentStage = 'Batch Creation';
+                                                    $stageStatusId = $snapshot->batch_creation_dim_status_id;
+                                                }
+                                                elseif ($snapshot->batch_manifest_dim_status_id) {
+                                                    $currentStage = 'Batch Manifest';
+                                                    $stageStatusId = $snapshot->batch_manifest_dim_status_id;
+                                                }
+                                                elseif ($snapshot->file_search_dim_status_id) {
+                                                    $currentStage = 'File Search';
+                                                    $stageStatusId = $snapshot->file_search_dim_status_id;
+                                                }
+                                                elseif ($snapshot->folder_search_dim_status_id) {
+                                                    $currentStage = 'Folder Search';
+                                                    $stageStatusId = $snapshot->folder_search_dim_status_id;
+                                                }
+                                                elseif ($snapshot->config_import_dim_status_id) {
+                                                    $currentStage = 'Config Import';
+                                                    $stageStatusId = $snapshot->config_import_dim_status_id;
+                                                }
                                             @endphp
                                             {{ $currentStage }}
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                            @if($stageStatusId)
+                                                @php
+                                                    $status = App\Models\DimStatus::find($stageStatusId);
+                                                @endphp
+                                                @if($status)
+                                                    <span
+                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                        style="background-color: {{ $status->status_color }}; color: white;">
+                                                        {{ $status->status_name }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-gray-500">Unknown</span>
+                                                @endif
+                                            @else
+                                                <span class="text-gray-500">Not Started</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
