@@ -138,8 +138,8 @@ class CreateBatchesCommand extends Command
             $batch->save();
 
             // Now that we have the batch ID, set the batch name
-            $timestamp = $directory->creation_timestamp->format('Y-m-d:H:i');
-            $batchName = "{$timestamp}:{$batch->id}.md";
+            $timestamp = $directory->creation_timestamp->format('Y-m-d_H-i');
+            $batchName = "{$timestamp}_{$batch->id}.md";
 
             $batch->batch_name = $batchName;
             $batch->save();

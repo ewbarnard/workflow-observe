@@ -55,7 +55,7 @@ class GenerateBatchFilesCommand extends Command
         ];
 
         // Create output directory with timestamp
-        $timestamp = now()->format('Y-m-d_H:i');
+        $timestamp = now()->format('Y-m-d_H-i');
         $outputDir = "{$this->baseOutputDir}/{$timestamp}";
 
         if (!File::exists($outputDir)) {
